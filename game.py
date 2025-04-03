@@ -1,14 +1,13 @@
 import random
 import itertools
 from tqdm import tqdm
-import time
+from dotenv import load_dotenv
+import os
 
-def get_h_uple(l, h):
-    return list(itertools.product(l, repeat=h))
+load_dotenv("configure.env")
 
-# Costant Definitions
-COLORS = 'ABCDEFGHIJKLMNOPQRSTUVXYZ'
-VOID_CHAR = '_'
+COLORS = os.getenv("COLORS")
+VOID_CHAR = os.getenv("VOID_CHAR")
 
 level = {
     "medium": [8, 6, 4],
@@ -16,7 +15,7 @@ level = {
 }
 
 class MasterMind:
-    def __init__(self, attempts=8, colors=6, length=4):
+    def __init__(self, attempts=8, colors=6, solution_length=4):
         self.attempts = attempts
         self.colors = COLORS[:colors]
         self.history = {
@@ -25,7 +24,7 @@ class MasterMind:
             "corrects": [],
             "num_of_possibilities": []
         }
-        self.solution = VOID_CHAR * length
+        self.solution = VOID_CHAR * solution_length
         self.possibilities = []
         self.initialize_possibilities()
 
@@ -41,6 +40,7 @@ class MasterMind:
         return txt
 
     def initialize_possibilities(self):
+        self.possibilities = []
         for p in itertools.product(self.colors, repeat=len(self.solution)):
             self.possibilities.append(''.join(p))
         self.history["num_of_possibilities"].append(len(self.possibilities))
@@ -49,10 +49,10 @@ class MasterMind:
         conditions = self.history["attempts"] if condition is None else [condition]
         new_possibilities = []
         iterable = tqdm(self.possibilities, "Calculating possibilities") if progress_bar else self.possibilities
+        c, p = self.get_cor_perf()
         for possibility in iterable:
             for cond in conditions:
                 _c, _p = self.get_corrects(cond, possibility), self.get_perfects(cond, possibility)
-                c, p = self.get_cor_perf()
                 if _c == c and _p == p:
                     new_possibilities.append(possibility)
         self.possibilities = new_possibilities
@@ -89,11 +89,13 @@ class MasterMind:
         return corrects, perfects
 
     def move(self, attempt):
+        perfects, corrects = self.get_perfects(attempt, self.solution), self.get_corrects(attempt, self.solution)
         self.history["attempts"].append(attempt)
-        self.history["perfects"].append(self.get_perfects(attempt, self.solution))
-        self.history["corrects"].append(self.get_corrects(attempt, self.solution))
-        self.filter_possibilities()
+        self.history["perfects"].append(perfects)
+        self.history["corrects"].append(corrects)
+        self.filter_possibilities(attempt)
         self.history["num_of_possibilities"].append(len(self.possibilities))
+        return perfects, corrects
 
     def win(self):
         return self.history["attempts"][-1] == self.solution
