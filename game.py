@@ -3,6 +3,7 @@ import itertools
 from tqdm import tqdm
 from dotenv import load_dotenv
 import os
+from utils import get_perfects, get_corrects
 
 load_dotenv("configure.env")
 
@@ -47,7 +48,7 @@ class MasterMind:
         c, p = self.get_cor_perf()
         for possibility in iterable:
             for cond in conditions:
-                _c, _p = self.get_corrects(cond, possibility), self.get_perfects(cond, possibility)
+                _c, _p = get_corrects(cond, possibility), get_perfects(cond, possibility)
                 if _c == c and _p == p:
                     new_possibilities.append(possibility)
         self.possibilities = new_possibilities
@@ -59,32 +60,14 @@ class MasterMind:
             if len(self.solution) != len(solution):
                 raise ValueError(f"Solution's length must be {len(self.solution)}: {solution}")
             self.solution = solution
-    @staticmethod
-    def get_perfects(attempt, solution):
-        perfects = 0
-        for i in range(len(solution)):
-            if solution[i] == attempt[i]:
-                perfects += 1
-        return perfects
-
-    @staticmethod
-    def get_corrects(attempt, solution):
-        perfects = MasterMind.get_perfects(attempt, solution)
-        attempt = list(attempt)
-        for i, x in enumerate(solution):
-            for j, y in enumerate(attempt):
-                if x == y:
-                    attempt.pop(j)
-                    break
-        return len(solution) - len(attempt) - perfects
 
     def get_cor_perf(self):
-        corrects = self.get_corrects(self.history["attempts"][-1], self.solution)
-        perfects = self.get_perfects(self.history["attempts"][-1], self.solution)
+        corrects = get_corrects(self.history["attempts"][-1], self.solution)
+        perfects = get_perfects(self.history["attempts"][-1], self.solution)
         return corrects, perfects
 
     def move(self, attempt):
-        perfects, corrects = self.get_perfects(attempt, self.solution), self.get_corrects(attempt, self.solution)
+        perfects, corrects = get_perfects(attempt, self.solution), get_corrects(attempt, self.solution)
         self.history["attempts"].append(attempt)
         self.history["perfects"].append(perfects)
         self.history["corrects"].append(corrects)

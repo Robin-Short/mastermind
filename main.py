@@ -20,7 +20,7 @@ def play(game, agent=None):
     for i in range(game.attempts):
         # Agent move
         if not agent is None:
-            attempt = agent.guess(game.history)
+            attempt = agent.guess(game.history, remember=False)
             print(f"Agent move: {attempt}")
         # Player move
         else:
