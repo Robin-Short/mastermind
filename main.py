@@ -21,6 +21,7 @@ def play(game, agent=None):
         # Agent move
         if not agent is None:
             attempt = agent.guess(game.history)
+            print(f"Agent move: {attempt}")
         # Player move
         else:
             print(f"Attempt: {len(game.history['attempts']) + 1}/{game.attempts}")
