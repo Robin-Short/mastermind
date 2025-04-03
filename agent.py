@@ -9,7 +9,7 @@ load_dotenv()
 COLORS = os.getenv("COLORS")
 VOID_CHAR = os.getenv("VOID_CHAR")
 
-class Agent:
+class NaiveAgent:
     def __init__(self, colors=6, solution_length=4):
         self.colors = COLORS[:colors]
         self.solution_length = solution_length
@@ -40,7 +40,7 @@ class Agent:
 
     @staticmethod
     def get_corrects(attempt, solution):
-        perfects = Agent.get_perfects(attempt, solution)
+        perfects = NaiveAgent.get_perfects(attempt, solution)
         attempt = list(attempt)
         for i, x in enumerate(solution):
             for j, y in enumerate(attempt):

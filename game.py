@@ -9,11 +9,6 @@ load_dotenv("configure.env")
 COLORS = os.getenv("COLORS")
 VOID_CHAR = os.getenv("VOID_CHAR")
 
-level = {
-    "medium": [8, 6, 4],
-    "difficult": [12, 6, 5]
-}
-
 class MasterMind:
     def __init__(self, attempts=8, colors=6, solution_length=4):
         self.attempts = attempts
@@ -104,15 +99,14 @@ class MasterMind:
         attempt = ''
         for i in range(self.attempts):
             if automatic:
-                attempt = 'auto'
+                attempt = 'help'
             print(f"Attempt: {len(self.history['attempts']) + 1}/{self.attempts}")
             while not self.is_valid(attempt):
                 attempt = input(f"Colors: {self.colors}\nFind a solution of length {len(self.solution)}: ")
-            if attempt == 'auto':
+            if attempt == 'help':
                 attempt = random.sample(self.possibilities, 1)[0]
                 print(f"Word chosen automatically: {attempt}")
-            self.move(attempt)
-            c, p = self.get_cor_perf()
+            p, c = self.move(attempt)
             print(f"Perfects: {p}\nCorrects: {c}\n")
             if self.win():
                 break
@@ -123,7 +117,7 @@ class MasterMind:
             print(f"Fail, solution was {self.solution}")
 
     def is_valid(self, attempt):
-        if attempt == 'auto':
+        if attempt == 'help':
             return True
         if not isinstance(attempt, str):
             return False
@@ -136,7 +130,7 @@ class MasterMind:
 
 
 if __name__ == "__main__":
-    game = MasterMind(*level["difficult"])
+    game = MasterMind(8, 6, 4)
     game.set_solution()
     game.play(automatic=True)
     print(game)
